@@ -1,5 +1,7 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get, Post, Query } from '@nestjs/common';
 import { AppService } from './app.service';
+import { CreateMeasurementDto } from './measurments/create-measurement.dto';
+import { QueryMeasurementsDto } from './measurments/query-measurements.dto';
 
 @Controller()
 export class AppController {
@@ -8,5 +10,17 @@ export class AppController {
   @Get()
   getHello(): string {
     return this.appService.getHello();
+  }
+
+  // POST /data
+  @Post('/data')
+  async create(@Body() dto: CreateMeasurementDto) {
+    return this.appService.create(dto);
+  }
+
+  // GET /data?deviceId=...
+  @Get('/data')
+  async findAll(@Query() query: QueryMeasurementsDto) {
+    return this.appService.findAll(query);
   }
 }

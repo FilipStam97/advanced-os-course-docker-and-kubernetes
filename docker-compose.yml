@@ -31,6 +31,51 @@ services:
     networks:
       - aos-network
 
+  db1:
+    profiles:
+      - dev
+      - db1
+    container_name: postgres-db1
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      PGDATA: /data/postgres
+      POSTGRES_DB: bank
+    # volumes:
+    #   - db1:/data/postgres
+    ports:
+      - "5331:5432"
+    networks:
+      - aos-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
+  db2:
+    container_name: postgres-db2
+    image: postgres:latest
+    environment:
+      POSTGRES_USER: admin
+      POSTGRES_PASSWORD: admin123
+      PGDATA: /data/postgres
+      POSTGRES_DB: bank
+    # volumes:
+    #   - db2:/data/postgres
+    ports:
+      - "5332:5432"
+    networks:
+      - aos-network
+    restart: unless-stopped
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -d postgres" ]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+
 
 networks:
   aos-network:
