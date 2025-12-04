@@ -5,6 +5,7 @@ import { Measurement } from './measurments/measurment.entity';
 import { QueryMeasurementsDto } from './measurments/query-measurements.dto';
 import { CreateMeasurementDto } from './measurments/create-measurement.dto';
 import { MeasurementAggregate } from './measurments/measurement-aggregate.type';
+import { RabbitmqService } from './rabbitmq/rabbitmq.service';
 
 @Injectable()
 export class AppService {
@@ -12,6 +13,7 @@ export class AppService {
     constructor(
     @InjectRepository(Measurement)
     private measurementRepo: Repository<Measurement>,
+    private readonly rabbitmqService: RabbitmqService,
   ) {}
   
   getHello(): string {
@@ -34,27 +36,40 @@ export class AppService {
   }
 
   async aggregateLastMinutes(
-    windowMinutes = 10,
+    windowMinutes?: number,
   ): Promise<MeasurementAggregate[]> {
-    const to = new Date();
-    const from = new Date(to.getTime() - windowMinutes * 60 * 1000);
+  const to = new Date();
 
-    const rows = await this.measurementRepo
-      .createQueryBuilder('m')
-      .select('m.deviceId', 'deviceId')
-      .addSelect('AVG(m.value)', 'avgValue')
-      .where('m.createdAt BETWEEN :from AND :to', { from, to })
-      .groupBy('m.deviceId')
-      .getRawMany<{
-        deviceId: string;
-        avgValue: string;
-      }>();
+  const minutes = windowMinutes ?? 24 * 60;
+  const from = new Date(to.getTime() - minutes * 60 * 1000);
 
-    return rows.map((row) => ({
-      deviceId: row.deviceId,
-      avgValue: Number(row.avgValue),
-      from,
-      to,
-    }));
+  console.log('AGG WINDOW:', { from, to });
+
+  const rows = await this.measurementRepo
+    .createQueryBuilder('m')
+    .select('m.deviceId', 'deviceId')
+    .addSelect('AVG(m.value)', 'avgValue')
+    .where('m.createdAt >= :from', { from })
+    .andWhere('m.createdAt <= :to', { to })
+    .groupBy('m.deviceId')
+    .getRawMany<{ deviceId: string; avgValue: string }>();
+
+  console.log('AGG ROWS RAW:', rows);
+
+  return rows.map((row) => ({
+    deviceId: row.deviceId,
+    avgValue: Number(row.avgValue),
+    from,
+    to,
+  }));
+  }
+
+
+  async aggregateAndSend(windowMinutes?: number): Promise<number> {
+    const aggregates = await this.aggregateLastMinutes(windowMinutes);
+    if (aggregates.length > 0) {
+      await this.rabbitmqService.publishAggregates(aggregates);
+    }
+    return aggregates.length;
   }
 }

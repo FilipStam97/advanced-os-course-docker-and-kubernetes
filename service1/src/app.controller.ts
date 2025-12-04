@@ -23,4 +23,20 @@ export class AppController {
   async findAll(@Query() query: QueryMeasurementsDto) {
     return this.appService.findAll(query);
   }
+
+
+  
+  @Get('aggregate')
+  async aggregate(@Query('windowMinutes') windowMinutes?: string) {
+    const window = windowMinutes ? parseInt(windowMinutes, 10) : 10;
+    return this.appService.aggregateLastMinutes(window);
+  }
+
+  // MANUAL TRIGGER
+  @Post('aggregate/dispatch')
+  async aggregateAndSend(@Query('windowMinutes') windowMinutes?: string) {
+    const window = windowMinutes ? parseInt(windowMinutes, 10) : 24 * 60;
+    const count = await this.appService.aggregateAndSend(window);
+    return { sent: count, windowMinutes: window };
+  }
 }

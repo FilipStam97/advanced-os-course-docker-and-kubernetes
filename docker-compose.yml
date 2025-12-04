@@ -58,6 +58,9 @@ services:
   db2:
     container_name: postgres-db2
     image: postgres:latest
+    profiles:
+      - dev
+      - db2
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin123
@@ -76,6 +79,37 @@ services:
       timeout: 10s
       retries: 5
 
+  rabbitmq:
+    image: rabbitmq:latest
+    profiles:
+      - dev
+      - db1
+    container_name: rabbitmq
+    networks:
+      - aos-network
+    restart: always
+    ports:
+      - 5672:5672
+      - 15672:15672
+    environment:
+      RABBITMQ_DEFAULT_USER: kalo
+      RABBITMQ_DEFAULT_PASS: kalo
+    configs:
+      - source: rabbitmq-plugins
+        target: /etc/rabbitmq/enabled_plugins
+    volumes:
+      - rabbitmq-lib:/var/lib/rabbitmq/
+      - rabbitmq-log:/var/log/rabbitmq
+
+configs:
+  rabbitmq-plugins:
+    content: "[rabbitmq_management]." 
+
+volumes:
+  rabbitmq-lib:
+    driver: local
+  rabbitmq-log:
+    driver: local
 
 networks:
   aos-network:
