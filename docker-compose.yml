@@ -2,7 +2,15 @@ services:
   service1:
     profiles:
       - dev
+      - dev2
     image: service1-dev
+    environment:
+      DB_HOST: postgres-db2     # <— IMPORTANT
+      DB_PORT: 5432              # <— internal container port
+      DB_USER: admin  
+      DB_PASS: admin123
+      DB_NAME: bank
+      RABBITMQ_URL: "amqp://kalo:kalo@rabbitmq:5672"
     ports:
       - "8080:3000"
     restart: unless-stopped
@@ -19,6 +27,13 @@ services:
     profiles:
       - dev
     image: service2-dev
+    environment:
+      DB_HOST: postgres-db2  
+      DB_PORT: 5432             
+      DB_USER: admin  
+      DB_PASS: admin123
+      DB_NAME: bank
+      RABBITMQ_URL: "amqp://kalo:kalo@rabbitmq:5672"
     ports:
       - "8081:3000"
     restart: unless-stopped
@@ -35,6 +50,7 @@ services:
     profiles:
       - dev
       - db1
+      - dev2
     container_name: postgres-db1
     image: postgres:latest
     environment:
@@ -61,6 +77,7 @@ services:
     profiles:
       - dev
       - db2
+      - dev2
     environment:
       POSTGRES_USER: admin
       POSTGRES_PASSWORD: admin123
@@ -69,7 +86,7 @@ services:
     # volumes:
     #   - db2:/data/postgres
     ports:
-      - "5332:5432"
+      - "5333:5432"
     networks:
       - aos-network
     restart: unless-stopped
@@ -84,6 +101,7 @@ services:
     profiles:
       - dev
       - db1
+      - dev2
     container_name: rabbitmq
     networks:
       - aos-network
@@ -100,6 +118,11 @@ services:
     volumes:
       - rabbitmq-lib:/var/lib/rabbitmq/
       - rabbitmq-log:/var/log/rabbitmq
+    healthcheck:
+      test: ["CMD-SHELL", "rabbitmq-diagnostics -q ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
 
 configs:
   rabbitmq-plugins:
