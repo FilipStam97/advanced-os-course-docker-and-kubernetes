@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: postgres-db2
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: postgres-db2
+  template:
+    metadata:
+      labels:
+        app: postgres-db2
+    spec:
+      containers:
+        - name: postgres
+          image: postgres:latest
+          env:
+            - name: POSTGRES_USER
+              value: "admin"
+            - name: POSTGRES_PASSWORD
+              value: "admin123"
+            - name: POSTGRES_DB
+              value: "bank"
+            - name: PGDATA
+              value: "/data/postgres"
+          ports:
+            - containerPort: 5432
+          volumeMounts:
+            - name: db2-data
+              mountPath: /data/postgres
+      volumes:
+        - name: db2-data
+          emptyDir: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: postgres-db2
+spec:
+  type: ClusterIP
+  selector:
+    app: postgres-db2
+  ports:
+    - port: 5432
+      targetPort: 5432

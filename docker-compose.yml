@@ -5,8 +5,8 @@ services:
       - dev2
     image: service1-dev
     environment:
-      DB_HOST: postgres-db2     # <— IMPORTANT
-      DB_PORT: 5432              # <— internal container port
+      DB_HOST: postgres-db1    
+      DB_PORT: 5432            
       DB_USER: admin  
       DB_PASS: admin123
       DB_NAME: bank

@@ -10,7 +10,7 @@ export class AppController {
     return this.appService.getHello();
   }
 
-  @Get('/results')
+  @Get('results')
   async findAll(@Query('deviceId') deviceId?: string) {
     return this.appService.findAll(deviceId);
   }
