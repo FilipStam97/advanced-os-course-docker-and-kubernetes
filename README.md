@@ -2,8 +2,6 @@
 
 
 
-
-
 ## Kubernetes
 
 ### Check context
@@ -11,8 +9,8 @@ kubectl config current-context
 kubectl config get-contexts
 kubectl config use-context docker-desktop
 
-### Get nodes 
-kubectl get nodes //returns nodes
+### Get nodes //returns nodes
+kubectl get nodes 
 
 ### Apply config to the cluster
 kubectl apply -f k8s/all.yaml
