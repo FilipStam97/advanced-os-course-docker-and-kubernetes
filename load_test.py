@@ -2,7 +2,7 @@ import requests
 import json
 
 # Configuration
-URL = "http://localhost:30080/data"
+URL = "http://10.240.0.2:30080/data"
 HEADERS = {"Content-Type": "application/json"}
 PAYLOAD = {"deviceId": "sensor-1", "value": 25.0}
 NUM_REQUESTS = 500

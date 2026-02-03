@@ -15,7 +15,7 @@ export class AggregationScheduler {
 
   constructor(private readonly appService: AppService) {}
 
-  @Interval('aggregate-interval', parseInt(process.env.AGGREGATE_INTERVAL_MINUTES || '5') * 60 * 1000) // 5 minutes default (300k ms)
+  @Interval('aggregate-interval', parseInt(process.env.AGGREGATE_INTERVAL_MINUTES || '1') * 60 * 1000) // 5 minutes default (300k ms)
   async handleInterval() {
     try {
       const count = await this.appService.aggregateAndSend(this.windowMinutes);

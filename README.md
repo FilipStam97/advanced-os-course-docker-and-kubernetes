@@ -1,6 +1,6 @@
 # advanced-os-course-docker-and-kubernetes
 
-
+ 
 
 ## Kubernetes
 
@@ -13,7 +13,7 @@ kubectl config use-context docker-desktop
 kubectl get nodes 
 
 ### Apply config to the cluster
-kubectl apply -f k8s/all.yaml
+kubectl apply -f k8s/
 kubectl get pods
 kubectl get svc
 
@@ -73,4 +73,12 @@ run the load_test.py then
 
 kubectl get hpa
 kubectl get pods
+
+
+### delete pods
+kubectl delete deploy --all
+kubectl delete svc --all
+kubectl delete pod --all
+kubectl delete all --all
+
 
